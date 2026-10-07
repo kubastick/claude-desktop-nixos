@@ -6,11 +6,20 @@ on:
   schedule:
     - cron: "0 6 * * 6"
   workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/update.yml
+      - update.sh
+  pull_request:
+    paths:
+      - .github/workflows/update.yml
+      - update.sh
 
 permissions: {}
 
 concurrency:
-  group: update-claude-desktop
+  group: update-claude-desktop-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -58,7 +67,7 @@ jobs:
           fi
 
       - name: Build
-        if: steps.update.outputs.changed == 'true'
+        if: steps.update.outputs.changed == 'true' || github.event_name == 'pull_request'
         run: |
           nix build --print-build-logs .#claude-desktop
           nix flake check --no-build
@@ -66,7 +75,7 @@ jobs:
 
   pull-request:
     needs: check
-    if: needs.check.outputs.changed == 'true'
+    if: needs.check.outputs.changed == 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: write
