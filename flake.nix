@@ -39,6 +39,8 @@
             }
           ];
         }).config.system.build.toplevel;
+
+        vm = import ./test.nix { inherit pkgs; module = self.nixosModules.default; };
       });
     };
 }

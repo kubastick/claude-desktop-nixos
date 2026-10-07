@@ -120,6 +120,16 @@ Wayland with server-side decorations and IME.
 
 The app doesn't update itself on Linux. Bump `sources.json` and rebuild.
 
+## Testing
+
+```sh
+nix flake check -L   # builds the package and runs the NixOS VM test (needs KVM)
+```
+
+The VM test ([`test.nix`](test.nix)) boots a machine with the module, checks
+the Cowork and nix-ld host setup, and starts the app to make sure it opens a
+window. CI runs it on every push and pull request.
+
 ## Not packaged
 
 These are Debian packaging details with no NixOS equivalent:
