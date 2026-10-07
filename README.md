@@ -65,7 +65,8 @@ in
 - Without flakes: `pkgs.callPackage "${src}/package.nix" { }` or `nix-build` in this repo.
 
 Cowork also needs the host setup that the module does (see below), so on its
-own the package gives you Chat and Claude Code.
+own the package gives you Chat. On NixOS the Code tab also needs
+`programs.nix-ld.enable = true` (the module sets it); other distros need nothing.
 
 ### Try it without installing
 
@@ -80,7 +81,7 @@ nix run github:kubastick/claude-desktop-nixos
 nix-build && ./result/bin/claude-desktop
 ```
 
-Chat and Claude Code work this way. Cowork also needs the host setup the module
+Chat works this way. On NixOS the Code tab needs `nix-ld`, and Cowork needs the host setup the module
 provides (see below). The app keeps its data in `~/.config/Claude` and your
 keyring, so delete those if you're only trying it out.
 
@@ -90,6 +91,7 @@ keyring, so delete those if you're only trying it out.
 | --- | --- | --- |
 | `programs.claude-desktop.enable` | `false` | Install the app (desktop entry, `claude://` handler, MIME types, GNOME search provider). |
 | `programs.claude-desktop.package` | built from `package.nix` | Package to install. |
+| `programs.claude-desktop.nixLd.enable` | `true` | Enable `programs.nix-ld` so the Claude Code CLI the app downloads at runtime can start. |
 | `programs.claude-desktop.cowork.enable` | `true` | Set up the host for Cowork's VM. |
 | `programs.claude-desktop.cowork.users` | `[ ]` | Users to add to the `kvm` group. |
 

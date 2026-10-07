@@ -9,6 +9,11 @@
 #   - the vhost_vsock kernel module
 #   - membership of the `kvm` group (/dev/kvm and /dev/vhost-vsock)
 #
+# It also enables nix-ld: the Code tab downloads a pinned, checksum-verified
+# Claude Code CLI into ~/.config/Claude/claude-code/ at runtime. That binary
+# is built for generic Linux and can't start on NixOS without a loader at
+# /lib64/ld-linux-*.so; patching it would break the app's checksum check.
+#
 # Usage - flake:
 #   imports = [ inputs.claude-desktop-nixos.nixosModules.default ];
 #   programs.claude-desktop = { enable = true; cowork.users = [ "alice" ]; };
@@ -39,6 +44,18 @@ in
         pkgs.callPackage ./package.nix { withCowork = config.programs.claude-desktop.cowork.enable; }
       '';
       description = "The claude-desktop package to install.";
+    };
+
+    nixLd.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Enable {option}`programs.nix-ld` so the Claude Code CLI that the app
+        downloads at runtime (a generic-Linux, glibc-only binary) can run.
+        Without it the Code tab fails with "Could not start dynamically
+        linked executable". Disable if you provide nix-ld (or envfs/an FHS
+        loader) some other way.
+      '';
     };
 
     cowork = {
@@ -73,6 +90,12 @@ in
       # D-Bus activation for the GNOME Shell search provider.
       services.dbus.packages = [ cfg.package ];
     }
+
+    # The downloaded CLI only links glibc (libc, libm, libdl, libpthread,
+    # librt), which nix-ld provides by default.
+    (lib.mkIf cfg.nixLd.enable {
+      programs.nix-ld.enable = true;
+    })
 
     (lib.mkIf cfg.cowork.enable {
       boot.kernelModules = [ "vhost_vsock" ];
