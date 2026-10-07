@@ -1,5 +1,7 @@
 # claude-desktop-nixos
 
+![Screenshot of Claude Desktop for Linux running](media/screenshot.png)
+
 Nix packaging and a NixOS module for [Claude Desktop on Linux (beta)](https://code.claude.com/docs/en/desktop-linux)
 — Chat, Cowork and Claude Code in one app.
 
@@ -61,10 +63,26 @@ in
 
 - Flake: `packages.<system>.claude-desktop`, or `overlays.default` to get `pkgs.claude-desktop`.
 - Without flakes: `pkgs.callPackage "${src}/package.nix" { }` or `nix-build` in this repo.
-- Try it: `NIXPKGS_ALLOW_UNFREE=1 nix run --impure github:kubastick/claude-desktop-nixos`
 
 Cowork also needs the host setup that the module does (see below), so on its
 own the package gives you Chat and Claude Code.
+
+### Try it without installing
+
+Run the app straight from the Nix store; nothing is added to your profile or
+system config:
+
+```sh
+# flakes
+nix run github:kubastick/claude-desktop-nixos
+
+# from a local checkout, without flakes
+nix-build && ./result/bin/claude-desktop
+```
+
+Chat and Claude Code work this way. Cowork also needs the host setup the module
+provides (see below). The app keeps its data in `~/.config/Claude` and your
+keyring, so delete those if you're only trying it out.
 
 ## Options
 
